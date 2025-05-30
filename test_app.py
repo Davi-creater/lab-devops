@@ -26,6 +26,25 @@ class APITestCase(unittest.TestCase):
     def test_protected_no_token(self):
         response = self.client.get('/protected')
         self.assertEqual(response.status_code, 401)
+    def test_login_returns_token(self):
+    
+        response = self.client.post('/login')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("access_token", response.json)
+        self.assertIsInstance(response.json["access_token"], str)
+        self.assertGreater(len(response.json["access_token"]), 0)
+
+    def test_protected_without_token(self):
+    
+        response = self.client.get('/protected') 
+        self.assertEqual(response.status_code, 401)
+        self.assertIn("msg", response.json)
+        self.assertEqual(response.json["msg"], "Missing Authorization Header")
+
+    def test_swagger_ui_route(self):
+        response = self.client.get('/swagger/')
+        self.assertIn(response.status_code, [200, 302]) 
+
 
 if __name__ == '__main__':
     unittest.main()
